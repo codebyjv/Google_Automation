@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      /* PALETA DE CORES E ESTILOS (Mantidos iguais ao anterior) */
+      :root {
+        --vermelho-wl: #c82333; 
+        --vermelho-hover: #bd2130;
+        --cinza-escuro: #343a40;
+        --cinza-claro: #f8f9fa;
+        --cinza-borda: #ced4da;
+        --branco: #ffffff;
+      }
+
+      body { 
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        padding: 0; margin: 0; background-color: #eaecf0; 
+        color: var(--cinza-escuro); display: flex; flex-direction: column; min-height: 100vh;
+      }
+
+      .header {
+        background-color: var(--branco); border-bottom: 4px solid var(--vermelho-wl);
+        padding: 20px; display: flex; align-items: center; justify-content: center; gap: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      }
+      .header img { max-height: 80px; max-width: 200px; }
+      .header-info h1 { margin: 0; color: var(--cinza-escuro); font-size: 1.5em; }
+      .header-info p { margin: 5px 0 0 0; color: #666; font-size: 0.9em; }
+
+      .container { 
+        max-width: 800px; margin: 30px auto; background: var(--branco); 
+        padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
+        flex: 1; width: 90%;
+      }
+
+      h2 { color: var(--vermelho-wl); border-bottom: 2px solid var(--cinza-claro); padding-bottom: 10px; margin-bottom: 20px; margin-top: 0;}
+      h3 { color: var(--cinza-escuro); margin-top: 25px; margin-bottom: 15px; font-size: 1.1em;}
+      
+      .linha-form { display: flex; gap: 15px; margin-bottom: 15px;}
+      .coluna { flex: 1; }
+      label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9em; color: var(--cinza-escuro);}
+      
+      input, textarea, select { 
+        width: 100%; padding: 10px; border: 1px solid var(--cinza-borda); 
+        border-radius: 4px; box-sizing: border-box; font-family: inherit; font-size: 0.95em;
+      }
+      input:focus, textarea:focus, select:focus { border-color: var(--vermelho-wl); outline: none; box-shadow: 0 0 5px rgba(200, 35, 51, 0.3);}
+      select { cursor: pointer; background-color: var(--branco); }
+      
+      .bloco-solicitante { background-color: var(--cinza-claro); border: 1px solid var(--cinza-borda); padding: 15px; border-radius: 6px; margin-bottom: 20px;}
+      .titulo-bloco { margin-top: 0; color: var(--vermelho-wl); border-bottom: 1px dashed var(--cinza-borda); padding-bottom: 10px;}
+      
+      table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 15px; }
+      th, td { border: 1px solid var(--cinza-borda); padding: 8px; text-align: left; }
+      th { background-color: #e9ecef; font-size: 0.9em; color: var(--cinza-escuro);}
+      
+      .celula-dupla { display: flex; align-items: center; gap: 5px; white-space: nowrap; font-size: 0.9em; color: var(--vermelho-wl); font-weight: bold;}
+      .input-curto { width: 55px; padding: 6px; text-align: center; color: var(--cinza-escuro); font-weight: normal;}
+      .input-medio { width: 80px; padding: 6px; color: var(--cinza-escuro); font-weight: normal;}
+
+      .btn-tabela { background-color: #6c757d; color: var(--branco); padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85em;}
+      .btn-tabela:hover { background-color: #5a6268; }
+      .btn-remover { background-color: #dc3545; color: var(--branco); padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8em;}
+      
+      .btn-novo-solicitante { 
+        background-color: var(--branco); color: var(--cinza-escuro); padding: 10px 15px; 
+        border: 2px dashed var(--cinza-borda); border-radius: 4px; cursor: pointer; 
+        width: 100%; font-size: 1em; margin-bottom: 20px; transition: all 0.3s;
+      }
+      .btn-novo-solicitante:hover { border-color: var(--vermelho-wl); color: var(--vermelho-wl); background-color: #fffafa;}
+
+      .btn-enviar { 
+        background-color: var(--vermelho-wl); color: var(--branco); padding: 15px 20px; 
+        border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 1.1em; 
+        font-weight: bold; margin-top: 10px; text-transform: uppercase; letter-spacing: 1px;
+      }
+      .btn-enviar:hover { background-color: var(--vermelho-hover); }
+      
+      .aviso { font-size: 0.85em; color: #666; font-style: italic; margin-top: -10px; margin-bottom: 15px; display: block;}
+      .status-api { font-size: 0.8em; color: #e67e22; font-weight: bold; margin-left: 10px; display: none;}
+
+      .tooltip {
+        position: relative; display: inline-block; cursor: help;
+        color: var(--vermelho-wl); margin-left: 5px; font-weight: bold; font-size: 1.1em;
+      }
+      .tooltip .tooltiptext {
+        visibility: hidden; width: 220px; background-color: var(--cinza-escuro); color: var(--branco);
+        text-align: center; border-radius: 6px; padding: 10px; position: absolute; z-index: 1;
+        bottom: 125%; left: 50%; margin-left: -110px; opacity: 0; transition: opacity 0.3s;
+        font-size: 0.8em; font-weight: normal; box-shadow: 0px 4px 8px rgba(0,0,0,0.2); white-space: normal;
+      }
+      .tooltip .tooltiptext::after {
+        content: ""; position: absolute; top: 100%; left: 50%; margin-left: -5px;
+        border-width: 5px; border-style: solid; border-color: var(--cinza-escuro) transparent transparent transparent;
+      }
+      .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
+
+      .redes-sociais { margin-top: 20px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;}
+      .redes-sociais a { display: inline-block; padding: 10px 20px; text-decoration: none; border-radius: 4px; color: var(--branco); font-weight: bold; font-size: 0.9em;}
+      .link-site { background-color: var(--cinza-escuro); } .link-site:hover { background-color: #1a1e21; }
+      .link-insta { background-color: #E1306C; } .link-insta:hover { background-color: #c12058; }
+      .link-whats { background-color: #25D366; } .link-whats:hover { background-color: #1da851; }
+
+      .whatsapp-flutuante {
+        position: fixed; bottom: 20px; right: 20px; background-color: #25D366; color: white;
+        border-radius: 50px; padding: 12px 20px; font-weight: bold; text-decoration: none;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s;
+      }
+      .whatsapp-flutuante:hover { transform: scale(1.05); }
+
+      #areaSucesso { text-align: center; display: none; padding: 40px 20px;}
+      .icone-sucesso { font-size: 60px; color: #28a745; margin-bottom: 20px;}
+
+      .footer { background-color: var(--cinza-escuro); color: #adb5bd; text-align: center; padding: 20px; font-size: 0.85em; margin-top: auto;}
+      .footer strong { color: var(--branco); }
+
+      @media (max-width: 600px) { .linha-form { flex-direction: column; gap: 5px; } .header { flex-direction: column; text-align: center; } .celula-dupla { flex-direction: column; align-items: flex-start;} }
+    </style>
+  </head>
+  <body>
+
+    <div class="header">
+      <img src="CODIGO_IMAGEM_BASE64" alt="Logo da empresa">
+      <div class="header-info">
+        <h1>NOME DA EMPRESA</h1>
+        <p>Portal de Emissão de Certificados de Calibração RBC</p>
+      </div>
+    </div>
+
+    <div class="container">
+      <div id="areaFormulario">
+        <h2>Dados para o Certificado</h2>
+        <form id="meuFormulario" onsubmit="enviarDados(event)">
+          
+          <div class="linha-form">
+            <div class="coluna">
+              <label>N° Proposta Aprovada:</label>
+              <input type="text" id="proposta" required>
+            </div>
+            <div class="coluna">
+              <label>Vendedor Responsável:</label>
+              <select id="vendedor" required>
+                <option value="" disabled selected>Selecione seu vendedor...</option>
+                <option value="EMAIL_VENDEDOR.COM.BR|VENDEDOR 1">Vendedor 1</option>
+                <option value="EMAIL_VENDEDOR.COM.BR|VENDEDOR 2">Vendedor 2</option>
+                <option value="EMAIL_VENDEDOR.COM.BR|VENDEDOR 3">Vendedor 3</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="linha-form">
+            <div class="coluna"><label>Nome do Contato:</label><input type="text" id="nomeContato" required></div>
+            <div class="coluna"><label>E-mail do Contato:</label><input type="email" id="emailContato" required></div>
+          </div>
+
+          <h3>Contratante (Dados do faturamento)</h3>
+          <div class="linha-form">
+            <div class="coluna" style="flex: 0.4;">
+              <label>CNPJ <span class="status-api" id="statusContratante">Buscando...</span></label>
+              <input type="text" id="cnpjContratante" maxlength="18" placeholder="00.000.000/0000-00" oninput="mascaraCNPJ(this); verificarCnpj(this, 'razaoContratante', 'enderecoContratante', 'statusContratante')">
+            </div>
+            <div class="coluna">
+              <label>Razão Social:</label>
+              <input type="text" id="razaoContratante" required>
+            </div>
+          </div>
+          <label>Endereço Completo:</label>
+          <input type="text" id="enderecoContratante" style="margin-bottom: 15px;" required>
+
+          <hr style="border: 0; border-top: 1px solid var(--cinza-borda); margin: 30px 0;">
+
+          <div id="container-solicitantes">
+            <div class="bloco-solicitante">
+              <h3 class="titulo-bloco">Solicitante (Destino Final)</h3>
+              <span class="aviso">Deixe em branco se for o mesmo que o Contratante.</span>
+              
+              <div class="linha-form">
+                <div class="coluna" style="flex: 0.4;">
+                  <label>CNPJ <span class="status-api">Buscando...</span></label>
+                  <input type="text" class="input-cnpj-sol" maxlength="18" placeholder="00.000.000/0000-00" oninput="mascaraCNPJ(this); verificarCnpjContexto(this)">
+                </div>
+                <div class="coluna">
+                  <label>Razão Social:</label>
+                  <input type="text" class="input-razao-sol">
+                </div>
+              </div>
+              <label>Endereço Completo:</label>
+              <input type="text" class="input-end-sol" style="margin-bottom: 15px;">
+              
+              <label>Peças para este Solicitante:</label>
+              <div style="background-color: #e9ecef; border-left: 4px solid #6c757d; padding: 12px; margin-bottom: 15px; border-radius: 4px;">
+                <p style="margin: 0; font-size: 14px; color: #495057;">
+                  <strong>💡 Dicas:</strong> Caso não possua as informações sobre as identificações (Tags/Conjuntos) dos pesos do cliente final, você pode preencher esses campos com <strong>"---"</strong>.
+                </p>
+                <p style="margin: 1; font-size: 14px; color: #495057;">
+                  Precisa identificar um kit? Preencha <strong>"Qtd.: 1"</strong> → <strong>"Cap.: Kit XX peças"</strong> ("tag/identificação" e "Ident. Conjunto" para kits não são informações obrigatórias.).
+                </p>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Capacidade <div class="tooltip">ⓘ<span class="tooltiptext">Informe a quantidade de peças e o valor nominal.</span></div></th>
+                    <th>Tag/Identificação <div class="tooltip">ⓘ<span class="tooltiptext">Numeração individual de cada peça.</span></div></th>
+                    <th>Ident. Conjunto <div class="tooltip">ⓘ<span class="tooltiptext">Ex: CJ-01 ou Local (Almoxarifado). Apenas se fizer parte de conjunto.</span></div></th>
+                    <th>Ação</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <div class="celula-dupla">
+                        Qtd.: <input type="text" class="input-qtd input-curto" placeholder="10" required> 
+                        Cap.: <input type="text" class="input-cap input-medio" placeholder="20kg" required>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="celula-dupla">
+                        De: <input type="text" class="input-tag-de input-curto" placeholder="01" required> 
+                        Até: <input type="text" class="input-tag-ate input-curto" placeholder="10">
+                      </div>
+                    </td>
+                    <td><input type="text" class="input-conjunto" placeholder="CJ-01 ou Almoxarifado"></td>
+                    <td>-</td>
+                  </tr>
+                </tbody>
+              </table>
+              <button type="button" class="btn-tabela" onclick="adicionarLinha(this)">+ Adicionar peça</button>
+            </div>
+          </div>
+
+          <button type="button" class="btn-novo-solicitante" onclick="adicionarSolicitante()">+ Adicionar outro Solicitante (Para mesma proposta)</button>
+
+          <h3>Observações Gerais</h3>
+          <label>Existe alguma observação extra que precisamos saber?</label>
+          <textarea id="observacoes" rows="3" placeholder="Digite aqui..."></textarea>
+
+          <button type="submit" class="btn-enviar" id="botaoEnviar">Finalizar e Enviar Dados</button>
+        </form>
+      </div>
+
+      <div id="areaSucesso">
+        <div class="icone-sucesso">✔️</div>
+        <h2 style="border: none; margin-bottom: 10px;">Dados Enviados com Sucesso!</h2>
+        <p>A equipe da EMPRESA FICTÍCIA já recebeu suas informações e dará andamento na sua proposta.</p>
+        <p>Agradecemos a confiança em nossos serviços!</p>
+
+        <div style="text-align: center; margin-top: 30px;">
+          <hr style="border: 0; border-top: 1px solid #ddd; margin-bottom: 30px;">
+          
+          <div style="background-color: #f8f9fa; border: 1px solid #e9ecef; padding: 25px; border-radius: 8px;">
+            <h3 style="margin-top: 0; color: #1f497d; font-size: 18px;">Como foi sua experiência?</h3>
+            <p style="color: #6c757d; font-size: 14px; margin-bottom: 20px;">
+              Queremos saber a sua opinião sobre o uso desta nova ferramenta. Leva menos de 1 minuto!
+            </p>
+            
+            <a href="LINK_DO_GOOGLE_FORMS" target="_blank" style="background-color: #c82333; color: white; padding: 10px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 15px;">
+              Avaliar Portal (Rápido)
+            </a>
+          </div>
+        </div>
+        
+        <div class="redes-sociais">
+          <a href="LINK_DO_SITE" target="_blank" class="link-site">🌐 Acesse nosso Site</a>
+          <a href="LINK_DO_WHATSAPP" target="_blank" class="link-whats">💬 Fale no WhatsApp</a>
+          <a href="LINK_DO_INSTAGRAM" target="_blank" class="link-insta">📸 Siga no Instagram</a>
+        </div>
+      </div>
+    </div>
+
+    <a href="LINK_DO_WHATSAPP_BTN_MOVEL" target="_blank" class="whatsapp-flutuante">Dúvidas? Chame no Whats</a>
+
+    <div class="footer">
+      <p><strong>"RAZÃO SOCIAL DA EMPRESA"</strong><br>
+      CNPJ: "CNPJ DA EMPRESA" | I.E.: "INSCRIÇÃO ESTADUAL DA EMPRESA"<br>
+      "ENDEREÇO COMPLETO DA EMPRESA"<br>
+      <a href="SITE_DA_EMPRESA" target="_blank" style="color: #adb5bd; text-decoration: none;">"LINK DO SITE DA EMPRESA"</a></p>
+      
+      <div class="redes-sociais" style="margin-top: 10px;">
+        <a href="LINK_DO_INSTAGRAM" target="_blank" class="link-insta" style="padding: 5px 10px; font-size: 0.8em;">Instagram</a>
+        <a href="LINK_DO_WHATSAPP_FOOTER" target="_blank" class="link-whats" style="padding: 5px 10px; font-size: 0.8em;">WhatsApp</a>
+      </div>
+    </div>
+
+    <script>
+      function mascaraCNPJ(input) {
+        var v = input.value.replace(/\D/g, "");
+        if (v.length > 14) v = v.substring(0, 14);
+        v = v.replace(/^(\d{2})(\d)/, "$1.$2");
+        v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+        v = v.replace(/\.(\d{3})(\d)/, ".$1/$2");
+        v = v.replace(/(\d{4})(\d)/, "$1-$2");
+        input.value = v;
+      }
+
+      function buscarDadosReceita(cnpjStr, razaoElement, enderecoElement, statusElement) {
+        var cnpjLimpo = cnpjStr.replace(/\D/g, "");
+        statusElement.style.display = 'inline';
+        statusElement.innerText = "Buscando...";
+        statusElement.style.color = "#e67e22";
+
+        var urlAPI = "https://brasilapi.com.br/api/cnpj/v1/" + cnpjLimpo;
+
+        fetch(urlAPI)
+          .then(function(response) {
+            if (!response.ok) throw new Error("CNPJ não encontrado");
+            return response.json();
+          })
+          .then(function(data) {
+            razaoElement.value = data.razao_social || "";
+            var endStr = data.logradouro + ", " + data.numero;
+            if (data.complemento) endStr += " - " + data.complemento;
+            endStr += " - " + data.bairro + ", " + data.municipio + " / " + data.uf + " - CEP: " + data.cep;
+            enderecoElement.value = endStr;
+            statusElement.innerText = "✔️ Encontrado";
+            statusElement.style.color = "#28a745";
+            razaoElement.style.backgroundColor = "#fff5f5"; 
+            enderecoElement.style.backgroundColor = "#fff5f5";
+            setTimeout(function() { razaoElement.style.backgroundColor = ""; enderecoElement.style.backgroundColor = ""; }, 1000);
+          })
+          .catch(function(error) {
+            statusElement.innerText = "❌ Erro";
+            statusElement.style.color = "#dc3545";
+          });
+      }
+
+      function verificarCnpj(input, razaoId, enderecoId, statusId) {
+        if (input.value.length === 18) { buscarDadosReceita(input.value, document.getElementById(razaoId), document.getElementById(enderecoId), document.getElementById(statusId)); } 
+        else { document.getElementById(statusId).style.display = 'none'; }
+      }
+
+      function verificarCnpjContexto(input) {
+        var bloco = input.closest('.bloco-solicitante');
+        var razaoInput = bloco.querySelector('.input-razao-sol');
+        var enderecoInput = bloco.querySelector('.input-end-sol');
+        var statusSpan = input.previousElementSibling.querySelector('.status-api');
+        if (input.value.length === 18) { buscarDadosReceita(input.value, razaoInput, enderecoInput, statusSpan); } 
+        else { statusSpan.style.display = 'none'; }
+      }
+
+      function adicionarLinha(botao) {
+        var tbody = botao.previousElementSibling.querySelector("tbody");
+        var novaLinha = document.createElement("tr");
+        novaLinha.innerHTML = '<td><div class="celula-dupla">Qtd.: <input type="text" class="input-qtd input-curto" placeholder="10" required> Cap.: <input type="text" class="input-cap input-medio" placeholder="20kg" required></div></td>' +
+                              '<td><div class="celula-dupla">De: <input type="text" class="input-tag-de input-curto" placeholder="01" required> Até: <input type="text" class="input-tag-ate input-curto" placeholder="10"></div></td>' +
+                              '<td><input type="text" class="input-conjunto" placeholder="CJ-01 ou Almoxarifado"></td>' +
+                              '<td><button type="button" class="btn-remover" onclick="removerLinha(this)">X</button></td>';
+        tbody.appendChild(novaLinha);
+      }
+
+      function removerLinha(botao) {
+        var linha = botao.parentNode.parentNode;
+        linha.parentNode.removeChild(linha);
+      }
+
+      function adicionarSolicitante() {
+        var container = document.getElementById("container-solicitantes");
+        var novoBloco = document.createElement("div");
+        novoBloco.className = "bloco-solicitante";
+        
+        var tabelaHeader = '<table><thead><tr>' +
+          '<th>Capacidade <div class="tooltip">ⓘ<span class="tooltiptext">Informe a quantidade de peças e o valor nominal.</span></div></th>' +
+          '<th>Tag/Identificação <div class="tooltip">ⓘ<span class="tooltiptext">Numeração individual de cada peça.</span></div></th>' +
+          '<th>Ident. Conjunto <div class="tooltip">ⓘ<span class="tooltiptext">Ex: CJ-01. Apenas se fizer parte de conjunto.</span></div></th>' +
+          '<th>Ação</th></tr></thead>';
+
+        novoBloco.innerHTML = '<h3 class="titulo-bloco" style="display:flex; justify-content:space-between;">Novo Solicitante <button type="button" class="btn-remover" onclick="removerSolicitante(this)">Remover</button></h3>' +
+                              '<div class="linha-form"><div class="coluna" style="flex: 0.4;"><label>CNPJ <span class="status-api">Buscando...</span></label><input type="text" class="input-cnpj-sol" maxlength="18" placeholder="00.000.000/0000-00" oninput="mascaraCNPJ(this); verificarCnpjContexto(this)"></div>' +
+                              '<div class="coluna"><label>Razão Social:</label><input type="text" class="input-razao-sol" required></div></div>' +
+                              '<label>Endereço Completo:</label><input type="text" class="input-end-sol" style="margin-bottom: 15px;" required>' +
+                              '<label>Peças para este Solicitante:</label>' +
+                              tabelaHeader +
+                              '<tbody><tr><td><div class="celula-dupla">Qtd.: <input type="text" class="input-qtd input-curto" placeholder="10" required> Cap.: <input type="text" class="input-cap input-medio" placeholder="20kg" required></div></td>' +
+                              '<td><div class="celula-dupla">De: <input type="text" class="input-tag-de input-curto" placeholder="01" required> Até: <input type="text" class="input-tag-ate input-curto" placeholder="10"></div></td>' +
+                              '<td><input type="text" class="input-conjunto" placeholder="CJ-01 ou Almoxarifado"></td><td>-</td></tr></tbody></table>' +
+                              '<button type="button" class="btn-tabela" onclick="adicionarLinha(this)">+ Adicionar peça</button>';
+        container.appendChild(novoBloco);
+      }
+
+      function removerSolicitante(botao) {
+        var bloco = botao.parentNode.parentNode;
+        bloco.parentNode.removeChild(bloco);
+      }
+
+      function enviarDados(event) {
+        event.preventDefault(); 
+        document.getElementById('botaoEnviar').innerText = "Processando, aguarde...";
+        document.getElementById('botaoEnviar').disabled = true;
+
+        var arraySolicitantes = [];
+        var blocos = document.querySelectorAll(".bloco-solicitante");
+        
+        for (var i = 0; i < blocos.length; i++) {
+          var bloco = blocos[i];
+          var pecasDoBloco = [];
+          var linhas = bloco.querySelectorAll("tbody tr");
+          
+          for (var j = 0; j < linhas.length; j++) {
+            var linha = linhas[j];
+            var qtd = linha.querySelector('.input-qtd').value;
+            var cap = linha.querySelector('.input-cap').value;
+            var capacidadeFinal = qtd + "x" + cap;
+            
+            var de = linha.querySelector('.input-tag-de').value;
+            var ate = linha.querySelector('.input-tag-ate').value;
+            var tagFinal = ate ? (de + " ao " + ate) : de;
+
+            pecasDoBloco.push({
+              capacidade: capacidadeFinal,
+              tag: tagFinal,
+              conjunto: linha.querySelector('.input-conjunto').value
+            });
+          }
+
+          arraySolicitantes.push({
+            razao: bloco.querySelector('.input-razao-sol').value,
+            endereco: bloco.querySelector('.input-end-sol').value,
+            pecas: pecasDoBloco
+          });
+        }
+
+        // --- AQUI CAPTURAMOS OS DADOS DO VENDEDOR SEPARADOS ---
+        var vendedorSelect = document.getElementById('vendedor').value;
+        var vendedorEmail = vendedorSelect.split('|')[0]; // Pega o e-mail antes do |
+        var vendedorNome = vendedorSelect.split('|')[1];  // Pega o nome depois do |
+
+        var dados = {
+          proposta: document.getElementById('proposta').value,
+          vendedorEmail: vendedorEmail,
+          vendedorNome: vendedorNome,
+          nomeContato: document.getElementById('nomeContato').value,
+          emailContato: document.getElementById('emailContato').value,
+          razaoContratante: document.getElementById('razaoContratante').value,
+          enderecoContratante: document.getElementById('enderecoContratante').value,
+          observacoes: document.getElementById('observacoes').value,
+          solicitantes: arraySolicitantes 
+        };
+
+        google.script.run.withSuccessHandler(function(retorno) {
+          document.getElementById('areaFormulario').style.display = 'none';
+          document.getElementById('areaSucesso').style.display = 'block';
+          
+          document.getElementById('meuFormulario').reset();
+          document.getElementById('botaoEnviar').innerText = "FINALIZAR E ENVIAR DADOS";
+          document.getElementById('botaoEnviar').disabled = false;
+
+          localStorage.removeItem('wl_dados');
+          localStorage.removeItem('wl_html');
+          
+        }).processarFormulario(dados);
+      }
+
+      // SALVAMENTO AUTOMÁTICO
+      document.getElementById('meuFormulario').addEventListener('input', function(e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+          e.target.setAttribute('value', e.target.value);
+          if (e.target.tagName === 'TEXTAREA') {
+            e.target.innerHTML = e.target.value;
+          }
+        }
+        salvarRascunho();
+      });
+
+      function salvarRascunho() {
+        var dadosEstaticos = {
+          proposta: document.getElementById('proposta').value,
+          vendedor: document.getElementById('vendedor').value,
+          nomeContato: document.getElementById('nomeContato').value,
+          emailContato: document.getElementById('emailContato').value,
+          cnpjContratante: document.getElementById('cnpjContratante').value,
+          razaoContratante: document.getElementById('razaoContratante').value,
+          enderecoContratante: document.getElementById('enderecoContratante').value,
+          observacoes: document.getElementById('observacoes').value
+        };
+        var htmlDinamico = document.getElementById('container-solicitantes').innerHTML;
+
+        localStorage.setItem('wl_dados', JSON.stringify(dadosEstaticos));
+        localStorage.setItem('wl_html', htmlDinamico);
+      }
+
+      window.onload = function() {
+        var dadosSalvos = localStorage.getItem('wl_dados');
+        var htmlSalvo = localStorage.getItem('wl_html');
+
+        if (dadosSalvos) {
+          var obj = JSON.parse(dadosSalvos);
+          document.getElementById('proposta').value = obj.proposta || '';
+          document.getElementById('vendedor').value = obj.vendedor || '';
+          document.getElementById('nomeContato').value = obj.nomeContato || '';
+          document.getElementById('emailContato').value = obj.emailContato || '';
+          document.getElementById('cnpjContratante').value = obj.cnpjContratante || '';
+          document.getElementById('razaoContratante').value = obj.razaoContratante || '';
+          document.getElementById('enderecoContratante').value = obj.enderecoContratante || '';
+          document.getElementById('observacoes').value = obj.observacoes || '';
+        }
+
+        if (htmlSalvo) {
+          document.getElementById('container-solicitantes').innerHTML = htmlSalvo;
+        }
+      };
+    </script>
+  </body>
+</html>
