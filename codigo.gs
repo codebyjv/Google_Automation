@@ -1,7 +1,7 @@
 function doGet() {
 
 return HtmlService.createHtmlOutputFromFile('Index')
-  .setTitle('Dados para Certificado - WL Pesos Padrão')
+  .setTitle("NOME_TITULO_ARQUIVO")
   .setSandboxMode(HtmlService.SandboxMode.IFRAME)
   .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
   .addMetaTag('viewport', 'width=device-width, initial-scale=1');
